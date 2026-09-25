@@ -1,0 +1,17 @@
+MPI Matrix Multiplication - Experiment Result
+
+Matrix Size: 4000 x 4000
+Number of MPI Processes: 4
+
+MPI Nodes:
+Rank 0 -> master
+Rank 1 -> worker1
+Rank 2 -> worker2
+Rank 3 -> worker3
+
+Rows computed per process: 1000
+
+Execution Time = 102.952839 seconds
+Verification C[0][0] = 4000.00
+
+Status: MPI Matrix Multiplication Completed Successfully

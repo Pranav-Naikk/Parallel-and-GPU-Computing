@@ -1,61 +1,33 @@
-
 # Sequential Matrix Multiplication
 
-This folder contains the sequential implementation of matrix multiplication.
+## Overview
 
-## Implementation
+This experiment implements matrix multiplication using the traditional sequential CPU approach without parallel processing.
 
-Matrix multiplication is performed using the traditional sequential approach without parallel processing.
+The sequential implementation serves as the baseline for comparing different parallel computing approaches such as OpenMP, MPI and CUDA.
 
-## Contents
+## Matrix Multiplication
 
-- Sequential source code
-- Output/result screenshots
-- Performance results
+For matrices A and B, the resulting matrix C is calculated as:
+
+C[i][j] = S A[i][k] � B[k][j]
+
+## Execution Model
+
+The computation is performed sequentially using three nested loops:
+
+1. Select a row of matrix A.
+2. Select a column of matrix B.
+3. Calculate the dot product of the row and column.
+4. Store the result in matrix C.
+
+## Results
+
+The existing experiment results are included in this folder.
+
+- `Sequential1.png` � Sequential execution
+- `Sequential_result.png` � Sequential result
 
 ## Purpose
 
-This implementation serves as the baseline for comparing sequential execution with OpenMP, MPI, and CUDA implementations.
-
-### Matrix Multiplication
-
-```text
-Matrix A              Matrix B              Matrix C
-┌───────┐             ┌───────┐             ┌───────┐
-│ a a a │             │ b b b │             │ c c c │
-│ a a a │     ×       │ b b b │     =       │ c c c │
-│ a a a │             │ b b b │             │ c c c │
-└───────┘             └───────┘             └───────┘
-
-                     C[i][j] =
-              Σ A[i][k] × B[k][j]
-```
-### Sequential Matrix Multiplication
-
-```text
-Start
-  │
-  ▼
-Read Matrix A and B
-  │
-  ▼
-Initialize Matrix C
-  │
-  ▼
-For each row i
-  │
-  ▼
-  For each column j
-      │
-      ▼
-    For each k
-      │
-      ▼
- C[i][j] += A[i][k] × B[k][j]
-      │
-      ▼
-Repeat until complete
-  │
-  ▼
-Display Result
-```
+The sequential implementation provides a baseline for comparison with OpenMP, MPI and CUDA implementations.
