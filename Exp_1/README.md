@@ -4,332 +4,201 @@
 
 **Analysis of Performance for Matrix Multiplication**
 
----
-
 ## 2. Aim
 
-To implement and analyze the performance of matrix multiplication using four different parallel computing approaches:
-
-1. **Sequential**
-2. **OpenMP**
-3. **MPI**
-4. **CUDA**
-
-The same matrix multiplication problem is evaluated using a matrix size of:
-
-**4000 × 4000**
-
-The performance of each implementation is compared using its measured execution time.
-
----
+To implement matrix multiplication using Sequential, OpenMP, MPI, and CUDA approaches and compare their execution performance for a 4000 × 4000 matrix.
 
 ## 3. Problem Statement
 
-Given two matrices:
+Matrix multiplication is computationally intensive because it requires a large number of arithmetic operations. The experiment implements the same matrix multiplication problem using different execution models and compares their execution times.
 
-- Matrix A: 4000 × 4000
-- Matrix B: 4000 × 4000
+All implementations use a **4000 × 4000** matrix and verify the result using:
 
-the objective is to calculate:
-
-$$
-C = A \times B
-$$
-
-where:
-
-$$
-C[i][j] = \sum_{k=0}^{N-1} A[i][k] \times B[k][j]
-$$
-
-For this experiment:
-
-$$
-N = 4000
-$$
-
-Matrices A and B are initialized with `1.0`.
-
-Therefore:
-
-```text
-Expected C[0][0] = 4000.00
-```
+**C[0][0] = 4000.00**
 
 ---
 
-# 4. Sequential Matrix Multiplication
+## 4. Sequential Matrix Multiplication
 
-## Execution Model
+The sequential implementation performs matrix multiplication using a single CPU execution flow.
 
-The sequential implementation performs matrix multiplication using the conventional three nested loops.
+### Configuration
 
-The computation is performed by a single CPU execution path without explicit parallelization.
-
-## Result
-
-```text
-Sequential Matrix Multiplication Completed
-Matrix Size = 4000 x 4000
-Execution Time = 339.308583 seconds
-Verification C[0][0] = 4000.00
-```
-
-### Measured Performance
-
-| Parameter | Result |
+| Parameter | Value |
 |---|---:|
 | Matrix Size | 4000 × 4000 |
+| Execution Model | Sequential CPU |
+| Data Type | double |
+| Initial A and B values | 1.0 |
+| Expected C[0][0] | 4000.00 |
+| Verification | PASSED |
 | Execution Time | **339.308583 s** |
-| Verification | **4000.00** |
-| Status | **PASSED** |
 
-The sequential implementation is used as the **baseline** for calculating the relative speedup of the other implementations.
+### Characteristics
+
+The sequential implementation serves as the baseline for comparing the parallel implementations.
 
 ---
 
-# 5. OpenMP Matrix Multiplication
+## 5. OpenMP Matrix Multiplication
 
-## Execution Model
+OpenMP parallelizes the matrix multiplication across multiple CPU threads.
 
-OpenMP uses the shared-memory parallel programming model. The matrix multiplication is divided among multiple CPU threads so that independent portions of the computation can execute concurrently.
+### Configuration
 
-## Result
-
-```text
-OpenMP Matrix Multiplication Completed
-Matrix Size = 4000 x 4000
-Number of Threads = 8
-Execution Time = 30.830434 seconds
-Verification C[0][0] = 4000.00
-```
-
-### Measured Performance
-
-| Parameter | Result |
+| Parameter | Value |
 |---|---:|
 | Matrix Size | 4000 × 4000 |
-| Number of Threads | 8 |
+| Execution Model | OpenMP |
+| Threads | 8 |
+| Expected C[0][0] | 4000.00 |
+| Verification | PASSED |
 | Execution Time | **30.830434 s** |
-| Verification | **4000.00** |
-| Status | **PASSED** |
 
 ### Speedup over Sequential
 
-$$
-Speedup_{OpenMP} =
-\frac{T_{Sequential}}{T_{OpenMP}}
-=
-\frac{results["Sequential"]:.6f}{results["OpenMP"]:.6f}
-=
-11.01\times
-$$
+Speedup is calculated as:
+
+**Speedup = Sequential Execution Time / OpenMP Execution Time**
+
+Using the measured results:
+
+**Speedup = 339.308583 / 30.830434 = 11.01×**
+
+The OpenMP implementation reduces execution time by distributing the matrix multiplication workload across 8 CPU threads.
 
 ---
 
-# 6. MPI Matrix Multiplication
+## 6. MPI Matrix Multiplication
 
-## Execution Model
+MPI distributes the matrix multiplication workload among multiple processes. The implementation uses communication operations to distribute input data and collect the resulting matrix.
 
-MPI uses the distributed-memory programming model. The matrix multiplication workload is distributed among multiple MPI processes.
+### Configuration
 
-For the experiment, **4 MPI processes** are used.
-
-The MPI implementation distributes portions of the matrix computation among the processes and combines the partial results.
-
-## Result
-
-```text
-MPI Matrix Multiplication Completed
-Matrix Size = 4000 x 4000
-Number of MPI Processes = 4
-Execution Time = 92.979510 seconds
-Verification C[0][0] = 4000.00
-```
-
-### Measured Performance
-
-| Parameter | Result |
+| Parameter | Value |
 |---|---:|
 | Matrix Size | 4000 × 4000 |
+| Execution Model | MPI |
 | MPI Processes | 4 |
+| Data Type | double |
+| Initial A and B values | 1.0 |
+| Expected C[0][0] | 4000.00 |
+| Verification | PASSED |
 | Execution Time | **92.979510 s** |
-| Verification | **4000.00** |
-| Status | **PASSED** |
 
 ### Speedup over Sequential
 
-$$
-Speedup_{MPI} =
-\frac{T_{Sequential}}{T_{MPI}}
-=
-\frac{results["Sequential"]:.6f}{results["MPI"]:.6f}
-=
-3.65\times
-$$
+Speedup is calculated as:
 
-MPI also introduces communication and synchronization overhead because the computation is distributed between separate processes.
+**Speedup = Sequential Execution Time / MPI Execution Time**
+
+Using the measured results:
+
+**Speedup = 339.308583 / 92.979510 = 3.65×**
+
+MPI introduces communication and synchronization overhead because the computation is distributed between separate processes.
 
 ---
 
-# 7. CUDA Matrix Multiplication
+## 7. CUDA Matrix Multiplication
 
-## Execution Model
+CUDA performs the matrix multiplication on the NVIDIA GPU. Each output element is computed by GPU threads organized into blocks and a grid.
 
-CUDA executes the matrix multiplication on the NVIDIA GPU.
+### GPU Configuration
 
-Each CUDA thread is responsible for calculating an element of the output matrix. A 2D grid of CUDA blocks is used.
-
-### CUDA Configuration
-
-- GPU: **NVIDIA GeForce RTX 5060 Ti**
-- Compute Capability: **12.0**
-- Global Memory: **15.93 GB**
-- Matrix Size: **4000 × 4000**
-- Grid Size: **250 × 250 blocks**
-- Block Size: **16 × 16 threads**
-- Threads per Block: **256**
-- Logical Threads: **16,000,000**
-
-## Result
-
-```text
-CUDA Matrix Multiplication
-===========================
-GPU = NVIDIA GeForce RTX 5060 Ti
-Compute Capability = 12.0
-Global Memory = 15.93 GB
-Matrix Size = 4000 x 4000
-
-Grid Size = 250 x 250 blocks
-Block Size = 16 x 16 threads
-Threads per Block = 256
-Logical Threads = 16000000
-
-Kernel Execution Time = 0.088848 seconds
-Total CUDA Phase Time = 0.118994 seconds
-Verification C[0][0] = 4000.00
-Verification Status = PASSED
-```
-
-### Measured Performance
-
-| Parameter | Result |
+| Parameter | Value |
 |---|---:|
 | GPU | NVIDIA GeForce RTX 5060 Ti |
 | Compute Capability | 12.0 |
 | Global Memory | 15.93 GB |
 | Matrix Size | 4000 × 4000 |
-| Grid Size | 250 × 250 blocks |
 | Block Size | 16 × 16 threads |
 | Threads per Block | 256 |
+| Grid Size | 250 × 250 blocks |
 | Logical Threads | 16,000,000 |
+
+### CUDA Result
+
+| Parameter | Result |
+|---|---:|
 | Kernel Execution Time | **0.088848 s** |
 | Total CUDA Phase Time | **0.118994 s** |
-| Verification | **4000.00** |
-| Status | **PASSED** |
+| C[0][0] | **4000.00** |
+| Verification | **PASSED** |
 
-### CUDA Speedup over Sequential
+### Speedup over Sequential
 
-Using the measured **kernel execution time**:
+For the GPU kernel comparison:
 
-$$
-Speedup_{CUDA} =
-\frac{T_{Sequential}}{T_{CUDA,Kernel}}
-=
-\frac{results["Sequential"]:.6f}{results["CUDA"]:.6f}
-=
-3818.98\times
-$$
+**Speedup = Sequential Execution Time / CUDA Kernel Execution Time**
+
+Using the measured results:
+
+**Speedup = 339.308583 / 0.088848 = 3818.98×**
+
+The CUDA kernel execution time is reported separately from the total CUDA phase time because GPU memory transfers and other CUDA operations contribute to the total phase time.
+
+Using the total CUDA phase time instead:
+
+**339.308583 / 0.118994 = 2851.45×**
 
 ---
 
-# 8. Overall Performance Comparison
+## 8. Overall Performance Comparison
 
-## Execution Time
-
-| Rank by execution time | Implementation | Execution Time |
-|---:|---|---:|
-| 1 | CUDA | **0.088848 s** |
-| 2 | OpenMP | **30.830434 s** |
-| 3 | MPI | **92.979510 s** |
-| 4 | Sequential | **339.308583 s** |
-
-> The ordering above is based only on the measured execution times for this 4000 × 4000 experiment.
-
-## Speedup Relative to Sequential
-
-| Implementation | Execution Time | Speedup |
+| Implementation | Execution Time (s) | Speedup vs Sequential |
 |---|---:|---:|
-| Sequential | 339.308583 s | 1.00× |
-| OpenMP | 30.830434 s | **11.01×** |
-| MPI | 92.979510 s | **3.65×** |
-| CUDA | 0.088848 s | **3818.98×** |
+| Sequential | 339.308583 | 1.00× |
+| OpenMP | 30.830434 | 11.01× |
+| MPI | 92.979510 | 3.65× |
+| CUDA Kernel | 0.088848 | 3818.98× |
+| CUDA Total Phase | 0.118994 | 2851.45× |
+
+### Execution Time Order
+
+Based on the measured execution times:
+
+1. **CUDA Kernel** — 0.088848 s
+2. **OpenMP** — 30.830434 s
+3. **MPI** — 92.979510 s
+4. **Sequential** — 339.308583 s
+
+The ordering above is based strictly on the measured execution times. CUDA kernel time and total CUDA phase time represent different portions of the CUDA execution and should therefore be interpreted separately.
 
 ---
 
-# 9. Performance Analysis Graph
+## 9. Performance Analysis Graph
 
-The following graph compares the measured execution times of all four implementations.
+The following graph compares the execution times of the four matrix multiplication approaches.
 
 ![Performance Comparison](performance_comparison.png)
 
-### Interpretation
-
-- **Sequential** provides the baseline execution time of **339.308583 seconds**.
-- **OpenMP** reduces the execution time to **30.830434 seconds** by using multiple CPU threads.
-- **MPI** completes the computation in **92.979510 seconds** using 4 processes. Its performance includes the overhead associated with distributed processing and communication.
-- **CUDA** has a measured kernel execution time of **0.088848 seconds** on the NVIDIA GeForce RTX 5060 Ti. The total CUDA phase time is **0.118994 seconds**.
-- The CUDA result demonstrates the large amount of parallelism available on the GPU for this matrix multiplication workload.
-
-Because the execution times differ by several orders of magnitude, the comparison graph uses a **logarithmic Y-axis** so that all four measurements can be clearly visualized.
+Because the execution times span several orders of magnitude, the graph uses a logarithmic Y-axis.
 
 ---
 
-# 10. Verification
+## 10. Verification
 
-All four implementations use the same mathematical problem and expected output.
+All four implementations produced the expected matrix multiplication result:
 
-Since:
-
-```text
-A[i][k] = 1.0
-B[k][j] = 1.0
-N = 4000
-```
-
-the expected result is:
-
-```text
-C[0][0] = 4000.00
-```
-
-The recorded implementations produced:
+**C[0][0] = 4000.00**
 
 | Implementation | Verification |
-|---|---:|
-| Sequential | **4000.00** |
-| OpenMP | **4000.00** |
-| MPI | **4000.00** |
-| CUDA | **4000.00 — PASSED** |
+|---|---|
+| Sequential | PASSED |
+| OpenMP | PASSED |
+| MPI | PASSED |
+| CUDA | PASSED |
 
 ---
 
-# 11. Conclusion
+## 11. Conclusion
 
-The experiment demonstrates four different approaches for performing the same **4000 × 4000 matrix multiplication**:
+The experiment demonstrates the performance differences between sequential and parallel matrix multiplication approaches.
 
-- **Sequential:** Single CPU execution path.
-- **OpenMP:** Shared-memory CPU parallelism using multiple threads.
-- **MPI:** Distributed-memory parallelism using multiple processes.
-- **CUDA:** GPU-based parallel execution using thousands of logical threads.
+- **Sequential** provides the baseline CPU execution time.
+- **OpenMP** reduces execution time by using multiple CPU threads.
+- **MPI** distributes computation among multiple processes, with communication and synchronization overhead.
+- **CUDA** executes the matrix multiplication on the GPU and reports substantially lower measured execution time for the kernel.
 
-The measured execution times show how the same computational problem behaves under different parallel programming models.
-
-The experiment successfully verifies the matrix multiplication result as:
-
-```text
-C[0][0] = 4000.00
-```
-
-for the implementations documented above.
+The comparison demonstrates how parallel execution can reduce the time required for computationally intensive matrix multiplication.
